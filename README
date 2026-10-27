@@ -1,0 +1,463 @@
+# TravelSnap --- Propuesta de proyecto
+
+## 1. Descripción
+
+TravelSnap es una red social para viajeros que permite compartir
+fotografías de lugares visitados, añadir información del destino, seguir
+a otros viajeros e interactuar con publicaciones. Los usuarios podrán
+descubrir destinos mediante un feed personalizado y búsquedas por ciudad
+o país.
+
+### Actores
+
+-   **Visitante:** persona que aún no ha iniciado sesión.
+-   **Usuario registrado:** persona que puede utilizar las funciones
+    sociales.
+-   **Sistema:** procesa solicitudes, valida información y administra
+    datos.
+
+## 2. Criterios generales de diseño
+
+1.  **Usuarios y crecimiento:** comenzar con unos 10.000 usuarios y
+    preparar el sistema para crecer hasta cientos de miles o millones.
+2.  **Tipo de carga:** principalmente de lectura (*read-heavy*), ya que
+    se consulta el feed más veces de las que se publican fotografías.
+3.  **Datos críticos:** las fotografías no deben perderse. El contador
+    de likes puede aceptar unos segundos de retraso.
+4.  **Latencia objetivo:** feed en menos de 200 ms y disponibilidad de
+    una fotografía en unos 2--3 segundos, bajo condiciones de prueba
+    acordadas.
+5.  **Costo:** cumplir los objetivos con una infraestructura razonable y
+    aumentar recursos según la demanda.
+
+Los objetivos de rendimiento deben medirse en condiciones de prueba
+definidas; no son garantías para cualquier conexión o dispositivo.
+
+## 3. Requerimientos funcionales: épicas e historias de usuario
+
+### EP01 --- Gestión de usuarios
+
+**HU01 --- Registro de cuenta**\
+Como visitante, quiero crear una cuenta para acceder a TravelSnap.
+
+Criterios de aceptación: - Solicitar nombre, correo y contraseña. -
+Validar el formato del correo y evitar correos duplicados. - Verificar
+que la contraseña cumpla las reglas establecidas. - Crear la cuenta si
+los datos son válidos. - Mostrar errores comprensibles cuando sea
+necesario.
+
+**HU02 --- Inicio de sesión**\
+Como usuario registrado, quiero iniciar sesión para acceder a mi cuenta.
+
+Criterios: - Solicitar correo y contraseña. - Permitir el acceso si las
+credenciales son correctas. - Mostrar un error genérico si son
+incorrectas, sin revelar datos sensibles. - Proteger las funciones
+privadas mediante autenticación.
+
+**HU03 --- Cierre de sesión**\
+Como usuario registrado, quiero cerrar sesión para proteger mi cuenta.
+
+Criterios: - Ofrecer una opción para cerrar sesión. - Invalidar la
+sesión al seleccionarla. - Exigir autenticación para volver a entrar a
+las funciones privadas.
+
+### EP02 --- Perfiles de usuario
+
+**HU04 --- Consultar perfil**\
+Como usuario registrado, quiero consultar mi perfil y el de otros
+viajeros para conocer sus publicaciones.
+
+Criterios: - Mostrar nombre e información pública. - Mostrar las
+publicaciones del perfil. - No permitir editar el perfil de otra persona
+desde su vista pública.
+
+**HU05 --- Editar perfil**\
+Como usuario registrado, quiero editar mi información para mantener
+actualizado mi perfil.
+
+Criterios: - Permitir modificar los campos habilitados. - Validar los
+datos antes de guardarlos. - Permitir modificar solo el perfil propio. -
+Mostrar los cambios guardados.
+
+### EP03 --- Publicaciones de viajes
+
+**HU06 --- Publicar fotografía**\
+Como viajero, quiero publicar una fotografía para compartir una
+experiencia de viaje.
+
+Criterios: - Exigir inicio de sesión. - Aceptar imágenes en formatos
+permitidos. - Solicitar título, descripción, ciudad y país. - Validar
+campos y archivo. - Mostrar la publicación en el perfil y en los feeds
+correspondientes.
+
+**HU07 --- Consultar publicación**\
+Como usuario, quiero abrir una publicación para ver la fotografía y la
+información del destino.
+
+Criterios: - Mostrar imagen, título, descripción, ciudad, país y
+autor. - Informar si la publicación no existe o no está disponible.
+
+**HU08 --- Eliminar publicación propia**\
+Como usuario registrado, quiero eliminar una publicación propia para
+retirar contenido que ya no deseo compartir.
+
+Criterios: - Permitir eliminar solo publicaciones propias. - Solicitar
+confirmación. - Retirar la publicación del perfil y los feeds. -
+Informar si la eliminación falla.
+
+### EP04 --- Seguimiento de viajeros
+
+**HU09 --- Seguir a un viajero**\
+Como usuario registrado, quiero seguir a otros viajeros para ver sus
+publicaciones en mi feed.
+
+Criterios: - Permitir seguir desde el perfil de otro usuario. -
+Registrar la relación. - Evitar relaciones duplicadas. - Impedir seguir
+la propia cuenta.
+
+**HU10 --- Dejar de seguir**\
+Como usuario registrado, quiero dejar de seguir a un viajero para dejar
+de recibir sus publicaciones en mi feed.
+
+Criterios: - Permitir dejar de seguir a usuarios seguidos. - Eliminar la
+relación correctamente. - Excluir las publicaciones futuras de ese
+usuario del feed personalizado. - No eliminar las publicaciones del
+usuario dejado de seguir.
+
+### EP05 --- Feed de publicaciones
+
+**HU11 --- Consultar feed personalizado**\
+Como usuario registrado, quiero ver publicaciones de los viajeros que
+sigo para mantenerme al día.
+
+Criterios: - Mostrar publicaciones de usuarios seguidos. - Presentar
+imagen e información principal del destino. - Ordenar inicialmente de la
+más reciente a la más antigua. - Permitir consultar resultados de forma
+paginada. - Mostrar un mensaje si no hay publicaciones disponibles.
+
+### EP06 --- Interacción social
+
+**HU12 --- Dar o quitar like**\
+Como usuario registrado, quiero dar o quitar un like para expresar
+interés en una publicación.
+
+Criterios: - Permitir añadir y quitar likes. - Evitar likes duplicados
+del mismo usuario en la misma publicación. - Actualizar el contador
+según las reglas del sistema.
+
+**HU13 --- Comentar publicación**\
+Como usuario registrado, quiero comentar una publicación para compartir
+opiniones o preguntar sobre el destino.
+
+Criterios: - Validar el texto y sus límites. - Asociar el comentario con
+su autor y publicación. - Mostrar el comentario una vez guardado. - No
+permitir comentarios sobre publicaciones inexistentes.
+
+**HU14 --- Consultar comentarios**\
+Como usuario, quiero leer los comentarios para conocer las opiniones de
+otras personas.
+
+Criterios: - Mostrar comentarios asociados a la publicación. -
+Identificar a cada autor. - Mantener un orden definido. - Mostrar un
+mensaje cuando no existan comentarios.
+
+### EP07 --- Descubrimiento de destinos
+
+**HU15 --- Buscar por ciudad o país**\
+Como usuario, quiero buscar publicaciones por ciudad o país para
+descubrir destinos.
+
+Criterios: - Permitir ingresar una ciudad o país. - Devolver
+publicaciones coincidentes, incluso si no se sigue al autor. - Mostrar
+un mensaje cuando no haya resultados. - Permitir abrir las publicaciones
+encontradas.
+
+## 4. Priorización inicial
+
+-   **Primera etapa:** HU01, HU02, HU03, HU04, HU06, HU07 y HU11.
+-   **Segunda etapa:** HU05, HU08, HU09, HU10, HU12, HU13 y HU14.
+-   **Tercera etapa:** HU15.
+
+Es una propuesta inicial que se puede ajustar con el profesor y el
+equipo.
+
+## 5. Requerimientos no funcionales y Definition of Done
+
+La **Definition of Done (DoD)** establece las condiciones comunes que
+debe cumplir una historia para considerarse terminada. No sustituye a
+los requisitos no funcionales: estos describen los niveles de calidad
+esperados, mientras la DoD indica qué debe comprobarse antes de cerrar
+el trabajo.
+
+### 5.1 Definition of Done
+
+  -----------------------------------------------------------------------
+  Código                  Criterio                Condición de terminado
+  ----------------------- ----------------------- -----------------------
+  DoD01                   Funcionalidad           Cumple los criterios de
+                                                  aceptación.
+
+  DoD02                   Revisión de código      Otro integrante revisó
+                                                  el código y se
+                                                  corrigieron problemas
+                                                  importantes.
+
+  DoD03                   Pruebas                 Se probaron los casos
+                                                  principales y errores
+                                                  esperados.
+
+  DoD04                   Validación              Se validan campos,
+                                                  formatos, límites y
+                                                  archivos admitidos.
+
+  DoD05                   Seguridad               Se verifican permisos y
+                                                  se bloquean accesos no
+                                                  autorizados.
+
+  DoD06                   Contraseñas             Se almacenan con hash
+                                                  seguro, nunca en texto
+                                                  plano.
+
+  DoD07                   Rendimiento             Se verifica el objetivo
+                                                  de rendimiento en el
+                                                  entorno de prueba
+                                                  acordado.
+
+  DoD08                   Errores                 Se gestionan errores
+                                                  sin exponer
+                                                  credenciales ni
+                                                  detalles sensibles.
+
+  DoD09                   Integridad              Publicaciones,
+                                                  comentarios,
+                                                  seguimientos y likes se
+                                                  guardan coherentemente.
+
+  DoD10                   Imágenes                Las fotografías se
+                                                  almacenan correctamente
+                                                  y existen medidas de
+                                                  recuperación.
+
+  DoD11                   Compatibilidad          Se prueba en los
+                                                  navegadores y tamaños
+                                                  de pantalla definidos.
+
+  DoD12                   Documentación           Se actualiza la
+                                                  documentación
+                                                  necesaria.
+
+  DoD13                   Integración             Los cambios se integran
+                                                  sin errores críticos
+                                                  conocidos.
+  -----------------------------------------------------------------------
+
+### 5.2 Requisitos no funcionales medibles
+
+  -----------------------------------------------------------------------
+  Código                  Requisito               Objetivo propuesto
+  ----------------------- ----------------------- -----------------------
+  RNF01                   Rendimiento del feed    Menos de 200 ms bajo
+                                                  condiciones de prueba
+                                                  acordadas.
+
+  RNF02                   Carga de fotografías    Disponibles en unos
+                                                  2--3 segundos con
+                                                  tamaño y conexión de
+                                                  referencia definidos.
+
+  RNF03                   Escalabilidad           Soportar 10.000
+                                                  usuarios iniciales y
+                                                  crecer sin reconstruir
+                                                  todo el sistema.
+
+  RNF04                   Durabilidad             Almacenamiento
+                                                  persistente, copias de
+                                                  seguridad y
+                                                  recuperación.
+
+  RNF05                   Seguridad               Proteger credenciales,
+                                                  validar entradas y
+                                                  verificar permisos.
+
+  RNF06                   Disponibilidad          Gestionar fallos y
+                                                  documentar recuperación
+                                                  del servicio.
+
+  RNF07                   Integridad              Evitar likes duplicados
+                                                  y seguimientos
+                                                  inconsistentes.
+
+  RNF08                   Compatibilidad          Funcionar en
+                                                  navegadores de
+                                                  escritorio y
+                                                  dispositivos móviles.
+
+  RNF09                   Mantenibilidad          Código modular y
+                                                  decisiones técnicas
+                                                  documentadas.
+
+  RNF10                   Costo                   Evitar recursos
+                                                  innecesarios y medir
+                                                  consumo.
+  -----------------------------------------------------------------------
+
+Los objetivos de 200 ms y 2--3 segundos deben comprobarse mediante
+pruebas con condiciones definidas.
+
+## 6. Requerimientos técnicos: historias técnicas
+
+### HT01 --- Diseñar la arquitectura
+
+Como equipo de desarrollo, queremos definir una arquitectura modular
+para facilitar mantenimiento y crecimiento.
+
+Criterios: - Definir componentes principales. - Documentar la
+comunicación entre frontend, backend, base de datos y almacenamiento de
+imágenes. - Separar responsabilidades y registrar decisiones técnicas.
+
+### HT02 --- Diseñar e implementar la base de datos
+
+Como equipo de desarrollo, queremos una base de datos estructurada para
+usuarios e interacciones.
+
+Criterios: - Definir usuarios, publicaciones, seguimientos, likes y
+comentarios. - Establecer relaciones, identificadores y restricciones. -
+Evitar duplicados e inconsistencias. - Crear tablas mediante un
+procedimiento controlado. - Preparar consultas eficientes.
+
+### HT03 --- Implementar autenticación y autorización
+
+Como equipo de desarrollo, queremos proteger cuentas y operaciones
+privadas.
+
+Criterios: - Implementar registro, inicio y cierre de sesión. - Guardar
+contraseñas con hash seguro. - Verificar identidad y permisos. - No
+exponer secretos en el código fuente.
+
+### HT04 --- Crear la API
+
+Como equipo de desarrollo, queremos una API organizada para comunicar
+frontend y backend.
+
+Criterios: - Definir endpoints. - Mantener formatos consistentes. -
+Validar entradas. - Aplicar autenticación y autorización. - Documentar
+endpoints y errores.
+
+### HT05 --- Implementar almacenamiento de fotografías
+
+Como equipo de desarrollo, queremos almacenar fotografías de forma
+persistente.
+
+Criterios: - Usar almacenamiento apropiado para archivos. - Guardar la
+referencia de la imagen en la base de datos. - Validar tipo y tamaño. -
+Definir respaldo y recuperación. - Gestionar errores de carga y
+recuperación.
+
+### HT06 --- Desarrollar el servicio de publicaciones
+
+Como equipo de desarrollo, queremos administrar creación, consulta y
+eliminación autorizada.
+
+Criterios: - Relacionar cada publicación con su autor. - Guardar título,
+descripción, ciudad, país y referencia de imagen. - Validar campos. -
+Impedir borrar publicaciones ajenas. - Gestionar errores.
+
+### HT07 --- Implementar seguimiento
+
+Como equipo de desarrollo, queremos administrar las relaciones entre
+viajeros.
+
+Criterios: - Crear y eliminar seguimientos. - Evitar duplicados y
+auto-seguimiento. - Consultar usuarios seguidos. - Mantener coherencia
+con el feed.
+
+### HT08 --- Desarrollar y optimizar el feed
+
+Como equipo de desarrollo, queremos recuperar publicaciones relevantes
+eficientemente.
+
+Criterios: - Obtener publicaciones de usuarios seguidos. - Ordenar de
+más reciente a más antigua. - Evitar consultas innecesarias. -
+Implementar paginación. - Medir el tiempo de respuesta.
+
+### HT09 --- Implementar likes y comentarios
+
+Como equipo de desarrollo, queremos administrar interacciones con
+publicaciones.
+
+Criterios: - Añadir y quitar likes. - Evitar likes duplicados. - Guardar
+y consultar comentarios. - Relacionar comentarios con autor y
+publicación. - Validar datos y gestionar errores.
+
+### HT10 --- Implementar búsqueda de destinos
+
+Como equipo de desarrollo, queremos buscar publicaciones por ciudad o
+país.
+
+Criterios: - Permitir búsqueda por ciudad o país. - Definir tratamiento
+de mayúsculas, minúsculas y espacios. - Devolver coincidencias. -
+Considerar índices si son necesarios. - Gestionar búsquedas sin
+resultados.
+
+### HT11 --- Implementar pruebas automatizadas
+
+Como equipo de desarrollo, queremos automatizar pruebas para detectar
+errores antes de integrar cambios.
+
+Criterios: - Crear pruebas unitarias y de integración. - Probar
+permisos, validaciones y errores. - Incorporar pruebas al flujo de
+integración. - Corregir errores críticos.
+
+### HT12 --- Configurar despliegue, monitoreo y recuperación
+
+Como equipo de desarrollo, queremos preparar el despliegue y la
+recuperación del servicio.
+
+Criterios: - Separar configuración de desarrollo y producción. -
+Gestionar secretos de forma segura. - Registrar errores sin
+credenciales. - Comprobar respaldos y recuperación. - Documentar
+despliegue y reinicio.
+
+## 7. Relación entre historias técnicas e historias de usuario
+
+  Historia técnica                         Historias de usuario relacionadas
+  ---------------------------------------- -----------------------------------
+  HT01 --- Arquitectura                    Todas
+  HT02 --- Base de datos                   HU01--HU15
+  HT03 --- Autenticación y autorización    HU01--HU10, HU12--HU13
+  HT04 --- API                             HU01--HU15
+  HT05 --- Almacenamiento de fotografías   HU06--HU07
+  HT06 --- Servicio de publicaciones       HU06--HU08
+  HT07 --- Seguimiento                     HU09--HU10
+  HT08 --- Feed                            HU11
+  HT09 --- Likes y comentarios             HU12--HU14
+  HT10 --- Búsqueda                        HU15
+  HT11 --- Pruebas automatizadas           Todas
+  HT12 --- Despliegue y monitoreo          Todas
+
+## 8. Orden recomendado de desarrollo
+
+1.  **Fundamentos:** HT01, HT02, HT03 y HT04.
+2.  **Contenido y perfiles:** HT05 y HT06, junto con registro, perfiles
+    y publicaciones.
+3.  **Funciones sociales:** HT07, HT08 y HT09.
+4.  **Búsqueda y calidad:** HT10, HT11 y HT12.
+
+Seguridad, pruebas y documentación deben trabajarse desde el inicio.
+
+## 9. Resumen
+
+-   Épicas funcionales: **7**
+-   Historias de usuario: **15**
+-   Criterios de Definition of Done: **13**
+-   Requisitos no funcionales medibles: **10**
+-   Historias técnicas: **12**
+
+## 10. Conclusión
+
+TravelSnap cuenta con una estructura inicial que define qué hará la
+aplicación, qué condiciones de calidad debe cumplir y qué trabajo
+técnico se necesita para construirla. El siguiente paso será seleccionar
+lenguaje, frameworks, base de datos y almacenamiento de imágenes,
+considerando las capacidades del equipo, el tiempo disponible y los
+objetivos de rendimiento y costo.
